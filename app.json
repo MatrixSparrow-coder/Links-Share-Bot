@@ -1,53 +1,74 @@
 {
-  "name": "TG File links/Sharing Bot",
-  "description": "link sharing bot. you can share you private links",
+  "name": "Movie Crescent - Amon Bot",
+  "description": "Movie Crescent links sharing bot (Amon). Share and manage private links with auto approval, admin system, and broadcast features.",
   "keywords": [
     "telegram",
+    "bot",
     "links",
-    "sharing"
+    "sharing",
+    "pyrogram"
   ],
   "repository": "https://github.com/Sahil0976/Links-Sharing",
-  "logo": "https://ibb.co/FgPVtzw",
+  "logo": "https://i.ibb.co/FgPVtzw/logo.png",
+
   "env": {
     "TG_BOT_TOKEN": {
-      "description": "Your Bot token, Get it from @Botfather",
+      "description": "Get bot token from @BotFather",
       "value": ""
     },
+
     "OWNER_ID": {
-      "description": "An integer of consisting of your owner ID",
+      "description": "Your Telegram user ID",
+      "value": "8662719308"
+    },
+
+    "APP_ID": {
+      "description": "Get from https://my.telegram.org",
       "value": ""
     },
-    "APP_ID":{
-      "description": "your app id, take it from my.telegram.org",
+
+    "API_HASH": {
+      "description": "Get from https://my.telegram.org",
       "value": ""
     },
+
     "DATABASE_URL": {
-      "description": "Paste your mongo db url",
-      "value": "url"
-    },
-    "DATABASE_NAME":{
-      "description": "Enter your DATABASE_NAME ",
-      "value": "linkssharing"
-    },
-    "API_HASH":{
-      "description": "your api hash, take it from my.telegram.org",
+      "description": "MongoDB connection string",
       "value": ""
     },
+
+    "DATABASE_NAME": {
+      "description": "Database name",
+      "value": "movie_crescent"
+    },
+
     "ADMINS": {
-      "description": "A space separated list of user_ids of Admins, they can only create links",
-      "value": "",
+      "description": "Space separated admin user IDs",
+      "value": "8662719308",
       "required": false
+    },
+
+    "BOT_USERNAME": {
+      "description": "Bot username (@LinkShare1_bot)",
+      "value": "@LinkShare1_bot"
+    },
+
+    "CHANNEL_USERNAME": {
+      "description": "Support channel (@MovieCrescent)",
+      "value": "@MovieCrescent"
     }
   },
+
   "buildpacks": [
     {
       "url": "heroku/python"
     }
   ],
+
   "formation": {
     "worker": {
       "quantity": 1,
       "size": "basic"
     }
   }
-}
+  }
