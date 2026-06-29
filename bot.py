@@ -1,4 +1,6 @@
-# +++ Modified By [telegram username: @Codeflix_Bots
+# Links Share Bot
+# Maintained by Matrix (@xzrie)
+
 import asyncio
 import sys
 from datetime import datetime
@@ -12,7 +14,7 @@ from aiohttp import web
 pyrogram.utils.MIN_CHANNEL_ID = -1009147483647
 
 name = """
-Links Sharing Started
+Links Share Bot Started Successfully
 """
 
 class Bot(Client):
@@ -43,11 +45,11 @@ class Bot(Client):
             self.LOGGER(__name__).warning(f"Failed to notify owner ({OWNER_ID}) of bot start: {e}")
 
         self.set_parse_mode(ParseMode.HTML)
-        self.LOGGER(__name__).info("Bot Running..!\n\nCreated by \nhttps://t.me/ProObito")
+        self.LOGGER(__name__).info("Links Share Bot started successfully.")
         self.LOGGER(__name__).info(f"{name}")
         self.username = usr_bot_me.username
 
-        # Web-response
+        # Web server
         try:
             app = web.AppRunner(await web_server())
             await app.setup()
@@ -60,6 +62,7 @@ class Bot(Client):
     async def stop(self, *args):
         await super().stop()
         self.LOGGER(__name__).info("Bot stopped.")
+
 
 # Global cancel flag for broadcast
 is_canceled = False
