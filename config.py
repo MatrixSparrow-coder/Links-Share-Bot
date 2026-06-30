@@ -57,9 +57,21 @@ START_IMG = START_PIC
 # ==========================
 START_MSG = environ.get(
     "START_MESSAGE",
-    "<b>Welcome to Links Share Bot.</b>"
-)
+    """
+👋 Welcome, {first}!
 
+Thanks for using <b>Amon Links Share Bot</b>.
+
+⚡ Your gateway to fast and secure temporary invite links.
+
+━━━━━━━━━━━━━━━━━━
+
+👑 <b>Owner:</b> Matrix (@xzrie)
+📢 <b>Official Channel:</b> @MovieCrescent
+
+💙 Thanks for being here. Enjoy your experience!
+"""
+)
 HELP = environ.get(
     "HELP_MESSAGE",
     "<b>Use /help to get help.</b>"
