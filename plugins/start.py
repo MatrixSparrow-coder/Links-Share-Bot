@@ -792,3 +792,7 @@ async def monitor_messages(client: Bot, message: Message):
             parse_mode=ParseMode.HTML,
         )
 """
+
+@Bot.on_message(filters.command("help") & filters.private)
+async def help_command(client: Bot, message: Message):
+    await message.reply_text(HELP_MSG, parse_mode=ParseMode.HTML)
