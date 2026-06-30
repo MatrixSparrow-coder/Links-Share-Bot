@@ -256,18 +256,24 @@ async def start_command(client: Bot, message: Message):
 
         try:
             await message.reply_photo(
-                photo=START_PIC,
-                caption=START_MSG,
-                reply_markup=inline_buttons,
-                parse_mode=ParseMode.HTML,
-            )
+    photo=START_PIC,
+    caption=START_MSG.format(
+        first=message.from_user.first_name,
+        mention=message.from_user.mention,
+    ),
+    reply_markup=inline_buttons,
+    parse_mode=ParseMode.HTML,
+)
         except Exception as e:
             print(f"[Amon] Could not send start photo: {e}")
             await message.reply_text(
-                START_MSG,
-                reply_markup=inline_buttons,
-                parse_mode=ParseMode.HTML,
-            )
+    START_MSG.format(
+        first=message.from_user.first_name,
+        mention=message.from_user.mention,
+    ),
+    reply_markup=inline_buttons,
+    parse_mode=ParseMode.HTML,
+)
 
 
 # ==============================================================================
