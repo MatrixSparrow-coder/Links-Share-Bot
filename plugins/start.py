@@ -247,7 +247,7 @@ async def start_command(client: Bot, message: Message):
             print(f"[Amon] Deep-link decode error: {e}")
 
     # ── No deep-link payload — show welcome screen ─────────────────────────────
-    else:
+        else:
         inline_buttons = main_menu_buttons()
 
         wait_msg = await message.reply_text("⏳")
@@ -256,25 +256,24 @@ async def start_command(client: Bot, message: Message):
 
         try:
             await message.reply_photo(
-    photo=START_PIC,
-    caption=START_MSG.format(
-        first=message.from_user.first_name,
-        mention=message.from_user.mention,
-    ),
-    reply_markup=inline_buttons,
-    parse_mode=ParseMode.HTML,
-)
+                photo=START_PIC,
+                caption=START_MSG.format(
+                    first=message.from_user.first_name,
+                    mention=message.from_user.mention,
+                ),
+                reply_markup=inline_buttons,
+                parse_mode=ParseMode.HTML,
+            )
         except Exception as e:
             print(f"[Amon] Could not send start photo: {e}")
             await message.reply_text(
-    START_MSG.format(
-        first=message.from_user.first_name,
-        mention=message.from_user.mention,
-    ),
-    reply_markup=inline_buttons,
-    parse_mode=ParseMode.HTML,
-)
-
+                START_MSG.format(
+                    first=message.from_user.first_name,
+                    mention=message.from_user.mention,
+                ),
+                reply_markup=inline_buttons,
+                parse_mode=ParseMode.HTML,
+            )
 
 # ==============================================================================
 #  Utility — invite-link creation timestamp
