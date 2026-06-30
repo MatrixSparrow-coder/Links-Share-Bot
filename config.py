@@ -72,6 +72,34 @@ Thanks for using <b>Amon Links Share Bot</b>.
 💙 Thanks for being here. Enjoy your experience!
 """
 )
+HELP_MSG = environ.get(
+    "HELP_MSG",
+    """
+🤖 <b>Amon Links Share Bot — Help</b>
+
+Your gateway to fast and secure temporary invite links.
+
+━━━━━━━━━━━━━━━━━━
+📜 <b>Commands:</b>
+
+/start — Start the bot and see the welcome message
+/help — Show this help message
+
+━━━━━━━━━━━━━━━━━━
+📌 <b>How to Use:</b>
+
+1️⃣ Start a chat with the bot using /start
+2️⃣ Request an invite link as guided by the bot
+3️⃣ Use the generated link to join the channel
+
+⏳ <b>Note:</b> Invite links are temporary and will expire after a set period, so use them promptly.
+
+━━━━━━━━━━━━━━━━━━
+📢 <b>Official Channel:</b> @MovieCrescent
+
+💙 Thank you for using Amon Links Share Bot!
+"""
+)
 HELP = environ.get(
     "HELP_MESSAGE",
     "<b>Use /help to get help.</b>"
