@@ -49,6 +49,35 @@ chat_data_cache: dict = {}
 WAIT_MSG = "<b>Please wait…</b>"
 REPLY_ERROR = "Use this command as a reply to any Telegram message without extra spaces."
 
+# ── Static display info (UI only — no backend impact) ─────────────────────────
+BOT_NAME = "Amon Links Share Bot"
+BOT_OWNER = "Matrix (@xzrie)"
+BOT_CHANNEL = "@MovieCrescent"
+BOT_VERSION = "2.0"
+
+
+def main_menu_buttons() -> InlineKeyboardMarkup:
+    """Primary inline keyboard shown on the /start welcome screen."""
+    return InlineKeyboardMarkup(
+        [
+            [
+                InlineKeyboardButton("ℹ️ About", callback_data="about"),
+                InlineKeyboardButton("📢 Channels", callback_data="channels"),
+            ],
+            [
+                InlineKeyboardButton("❓ Help", callback_data="help"),
+                InlineKeyboardButton("✖️ Close", callback_data="close"),
+            ],
+        ]
+    )
+
+
+def back_button() -> InlineKeyboardMarkup:
+    """Single back button used on all sub-pages."""
+    return InlineKeyboardMarkup(
+        [[InlineKeyboardButton("🔙 Back", callback_data="back_to_start")]]
+    )
+
 
 # ==============================================================================
 #  /start  handler
@@ -219,15 +248,7 @@ async def start_command(client: Bot, message: Message):
 
     # ── No deep-link payload — show welcome screen ─────────────────────────────
     else:
-        inline_buttons = InlineKeyboardMarkup(
-            [
-                [
-                    InlineKeyboardButton("• ᴀʙᴏᴜᴛ", callback_data="about"),
-                    InlineKeyboardButton("• ᴄʜᴀɴɴᴇʟs", callback_data="channels"),
-                ],
-                [InlineKeyboardButton("• Close •", callback_data="close")],
-            ]
-        )
+        inline_buttons = main_menu_buttons()
 
         wait_msg = await message.reply_text("⏳")
         await asyncio.sleep(0.1)
@@ -367,7 +388,119 @@ async def not_joined(client: Client, message: Message):
 @Bot.on_callback_query(filters.regex("close"))
 async def close_callback(client: Bot, callback_query: CallbackQuery):
     await callback_query.answer()
-    await callback_query.message.delete()
+    try:
+        await callback_query.message.delete()
+    except Exception as e:
+        print(f"[Amon] close_callback delete error: {e}")
+
+
+@Bot.on_callback_query(filters.regex("^about$"))
+async def about_callback(client: Bot, callback_query: CallbackQuery):
+    await callback_query.answer()
+
+    about_text = (
+        "<b>ℹ️ About This Bot</b>\n\n"
+        "<blockquote>"
+        f"🤖 <b>Name</b>      : {BOT_NAME}\n"
+        f"👤 <b>Owner</b>     : {BOT_OWNER}\n"
+        f"📢 <b>Channel</b>   : {BOT_CHANNEL}\n"
+        f"🏷 <b>Version</b>   : {BOT_VERSION}\n"
+        "🐍 <b>Language</b>  : Python\n"
+        "📦 <b>Library</b>   : Pyrogram"
+        "</blockquote>\n\n"
+        "<i>Built to make sharing links fast, safe and simple.</i>"
+    )
+
+    try:
+        await callback_query.message.edit_caption(
+            caption=about_text,
+            reply_markup=back_button(),
+            parse_mode=ParseMode.HTML,
+        )
+    except Exception:
+        await callback_query.message.edit_text(
+            about_text,
+            reply_markup=back_button(),
+            parse_mode=ParseMode.HTML,
+        )
+
+
+@Bot.on_callback_query(filters.regex("^channels$"))
+async def channels_callback(client: Bot, callback_query: CallbackQuery):
+    await callback_query.answer()
+
+    channels_text = (
+        "<b>📢 Official Channel</b>\n\n"
+        "<blockquote>Stay updated and grab the latest links from our official channel.</blockquote>"
+    )
+
+    buttons = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("📢 Join Channel", url=f"https://t.me/{BOT_CHANNEL.lstrip('@')}")],
+            [InlineKeyboardButton("🔙 Back", callback_data="back_to_start")],
+        ]
+    )
+
+    try:
+        await callback_query.message.edit_caption(
+            caption=channels_text,
+            reply_markup=buttons,
+            parse_mode=ParseMode.HTML,
+        )
+    except Exception:
+        await callback_query.message.edit_text(
+            channels_text,
+            reply_markup=buttons,
+            parse_mode=ParseMode.HTML,
+        )
+
+
+@Bot.on_callback_query(filters.regex("^help$"))
+async def help_callback(client: Bot, callback_query: CallbackQuery):
+    await callback_query.answer()
+
+    help_text = (
+        "<b>❓ Help & Commands</b>\n\n"
+        f"<i>{BOT_NAME} lets you fetch and share links shared in our channels.</i>\n\n"
+        "<b>Basic Commands</b>\n"
+        "<blockquote>"
+        "/start — Launch the bot\n"
+        "/help — Show this help page\n"
+        "/info — Bot information"
+        "</blockquote>\n\n"
+        "<i>Need more help? Reach out to the owner.</i>"
+    )
+
+    try:
+        await callback_query.message.edit_caption(
+            caption=help_text,
+            reply_markup=back_button(),
+            parse_mode=ParseMode.HTML,
+        )
+    except Exception:
+        await callback_query.message.edit_text(
+            help_text,
+            reply_markup=back_button(),
+            parse_mode=ParseMode.HTML,
+        )
+
+
+@Bot.on_callback_query(filters.regex("^back_to_start$"))
+async def back_to_start_callback(client: Bot, callback_query: CallbackQuery):
+    await callback_query.answer()
+
+    try:
+        await callback_query.message.edit_caption(
+            caption=START_MSG,
+            reply_markup=main_menu_buttons(),
+            parse_mode=ParseMode.HTML,
+        )
+    except Exception:
+        await callback_query.message.edit_text(
+            START_MSG,
+            reply_markup=main_menu_buttons(),
+            parse_mode=ParseMode.HTML,
+        )
 
 
 @Bot.on_callback_query(filters.regex("check_sub"))
@@ -404,256 +537,3 @@ async def check_sub_callback(client: Bot, callback_query: CallbackQuery):
 
 @Bot.on_message(filters.command("status") & filters.private & is_owner_or_admin)
 async def status_command(client: Bot, message: Message):
-    reply_markup = InlineKeyboardMarkup(
-        [[InlineKeyboardButton("• Close •", callback_data="close")]]
-    )
-
-    start_time = time.time()
-    temp_msg = await message.reply(
-        "<b><i>Fetching stats…</i></b>", quote=True, parse_mode=ParseMode.HTML
-    )
-    ping_time = (time.time() - start_time) * 1000
-
-    users = await full_userbase()
-    delta = datetime.now() - client.uptime
-    uptime_str = get_readable_time(delta.seconds)
-
-    await temp_msg.edit(
-        f"<b>"
-        f"👤 Total Users : <code>{len(users)}</code>\n\n"
-        f"⏱ Uptime       : <code>{uptime_str}</code>\n\n"
-        f"📡 Ping         : <code>{ping_time:.2f} ms</code>"
-        f"</b>",
-        reply_markup=reply_markup,
-        parse_mode=ParseMode.HTML,
-    )
-
-
-# ==============================================================================
-#  Admin — /cancel  (stops an active broadcast)
-# ==============================================================================
-
-@Bot.on_message(filters.command("cancel") & filters.private & is_owner_or_admin)
-async def cancel_broadcast(client: Bot, message: Message):
-    global is_canceled
-    async with cancel_lock:
-        is_canceled = True
-    await message.reply_text(
-        "<b>🛑 Broadcast cancellation requested.</b>",
-        parse_mode=ParseMode.HTML,
-    )
-
-
-# ==============================================================================
-#  Admin — /broadcast
-# ==============================================================================
-
-@Bot.on_message(filters.private & filters.command("broadcast") & is_owner_or_admin)
-async def broadcast(client: Bot, message: Message):
-    global is_canceled
-    args = message.text.split()[1:]
-
-    if not message.reply_to_message:
-        msg = await message.reply(
-            "<b>Reply to a message to start a broadcast.</b>\n\n"
-            "<b>Usage examples:</b>\n"
-            "<code>/broadcast normal</code>\n"
-            "<code>/broadcast pin</code>\n"
-            "<code>/broadcast delete 30</code>\n"
-            "<code>/broadcast pin delete 30</code>\n"
-            "<code>/broadcast silent</code>",
-            parse_mode=ParseMode.HTML,
-        )
-        await asyncio.sleep(8)
-        return await msg.delete()
-
-    # Parse broadcast mode flags
-    do_pin = False
-    do_delete = False
-    duration = 0
-    silent = False
-    mode_text = []
-
-    i = 0
-    while i < len(args):
-        arg = args[i].lower()
-        if arg == "pin":
-            do_pin = True
-            mode_text.append("PIN")
-        elif arg == "delete":
-            do_delete = True
-            try:
-                duration = int(args[i + 1])
-                i += 1
-            except (IndexError, ValueError):
-                return await message.reply(
-                    "<b>Please provide a valid duration for delete mode.</b>\n"
-                    "Usage: <code>/broadcast delete 30</code>",
-                    parse_mode=ParseMode.HTML,
-                )
-            mode_text.append(f"DELETE({duration}s)")
-        elif arg == "silent":
-            silent = True
-            mode_text.append("SILENT")
-        else:
-            mode_text.append(arg.upper())
-        i += 1
-
-    if not mode_text:
-        mode_text.append("NORMAL")
-
-    # Reset cancel flag before starting
-    async with cancel_lock:
-        is_canceled = False
-
-    query = await full_userbase()
-    broadcast_msg = message.reply_to_message
-    total = len(query)
-    successful = blocked = deleted = unsuccessful = 0
-
-    mode_label = " + ".join(mode_text)
-    pls_wait = await message.reply(
-        f"<i>📤 Starting broadcast in <b>{mode_label}</b> mode…</i>",
-        parse_mode=ParseMode.HTML,
-    )
-
-    bar_length = 20
-    progress_bar = ""
-    last_update_percentage = 0
-    update_interval = 0.05  # update every 5 %
-
-    for i, chat_id in enumerate(query, start=1):
-        async with cancel_lock:
-            if is_canceled:
-                await pls_wait.edit(
-                    f"<b>›› BROADCAST ({mode_label}) — CANCELED ❌</b>",
-                    parse_mode=ParseMode.HTML,
-                )
-                return
-
-     
-        try:
-            sent_msg = await broadcast_msg.copy(chat_id, disable_notification=silent)
-
-            if do_pin:
-                await client.pin_chat_message(chat_id, sent_msg.id, both_sides=True)
-            if do_delete:
-                asyncio.create_task(auto_delete(sent_msg, duration))
-
-            successful += 1
-
-        except FloodWait as e:
-            await asyncio.sleep(e.x)
-            try:
-                sent_msg = await broadcast_msg.copy(chat_id, disable_notification=silent)
-                if do_pin:
-                    await client.pin_chat_message(chat_id, sent_msg.id, both_sides=True)
-                if do_delete:
-                    asyncio.create_task(auto_delete(sent_msg, duration))
-                successful += 1
-            except Exception:
-                unsuccessful += 1
-
-        except UserIsBlocked:
-            await del_user(chat_id)
-            blocked += 1
-
-        except InputUserDeactivated:
-            await del_user(chat_id)
-            deleted += 1
-
-        except Exception:
-            unsuccessful += 1
-            await del_user(chat_id)
-
-        # Refresh progress bar every 5 %
-        percent_complete = i / total
-        if (
-            percent_complete - last_update_percentage >= update_interval
-            or last_update_percentage == 0
-        ):
-            num_blocks = int(percent_complete * bar_length)
-            progress_bar = "●" * num_blocks + "○" * (bar_length - num_blocks)
-            status_update = (
-                f"<b>›› BROADCAST ({mode_label}) — IN PROGRESS…\n\n"
-                f"<blockquote>⏳ [{progress_bar}] <code>{percent_complete:.0%}</code></blockquote>\n\n"
-                f"›› Total      : <code>{total}</code>\n"
-                f"›› Successful : <code>{successful}</code>\n"
-                f"›› Blocked    : <code>{blocked}</code>\n"
-                f"›› Deleted    : <code>{deleted}</code>\n"
-                f"›› Failed     : <code>{unsuccessful}</code></b>\n\n"
-                f"<i>➪ To stop, send /cancel</i>"
-            )
-            await pls_wait.edit(status_update, parse_mode=ParseMode.HTML)
-            last_update_percentage = percent_complete
-
-    # Final summary
-    final_status = (
-        f"<b>›› BROADCAST ({mode_label}) — COMPLETED ✅\n\n"
-        f"<blockquote>Done: [{progress_bar}] {percent_complete:.0%}</blockquote>\n\n"
-        f"›› Total      : <code>{total}</code>\n"
-        f"›› Successful : <code>{successful}</code>\n"
-        f"›› Blocked    : <code>{blocked}</code>\n"
-        f"›› Deleted    : <code>{deleted}</code>\n"
-        f"›› Failed     : <code>{unsuccessful}</code></b>"
-    )
-    return await pls_wait.edit(final_status, parse_mode=ParseMode.HTML)
-
-
-# ==============================================================================
-#  Utility — delayed message auto-delete (used by broadcast delete mode)
-# ==============================================================================
-
-async def auto_delete(sent_msg, duration: int):
-    """Delete *sent_msg* after *duration* seconds."""
-    await asyncio.sleep(duration)
-    try:
-        await sent_msg.delete()
-    except Exception:
-        pass
-
-
-# ==============================================================================
-#  Anti-spam monitor (disabled by default — remove triple-quotes to enable)
-# ==============================================================================
-
-"""
-@Bot.on_message(filters.private)
-async def monitor_messages(client: Bot, message: Message):
-    user_id = message.from_user.id
-    now = datetime.now()
-
-    # Ignore commands and admins
-    if message.text and message.text.startswith("/"):
-        return
-    if user_id in ADMINS:
-        return
-
-    if user_id in user_banned_until and now < user_banned_until[user_id]:
-        return await message.reply_text(
-            "<b><blockquote expandable>"
-            "⚠️ You have been temporarily restricted due to excessive requests.\n"
-            "Please wait a while before trying again."
-            "</blockquote></b>",
-            parse_mode=ParseMode.HTML,
-        )
-
-    # Sliding-window rate limit
-    if user_id not in user_message_count:
-        user_message_count[user_id] = []
-
-    user_message_count[user_id] = [
-        t for t in user_message_count[user_id] if now - t < TIME_WINDOW
-    ]
-    user_message_count[user_id].append(now)
-
-    if len(user_message_count[user_id]) > MAX_MESSAGES:
-        user_banned_until[user_id] = now + BAN_DURATION
-        return await message.reply_text(
-            "<b><blockquote expandable>"
-            "⚠️ You have been temporarily restricted due to excessive requests.\n"
-            "Please wait a while before trying again."
-            "</blockquote></b>",
-            parse_mode=ParseMode.HTML,
-        )
-"""
