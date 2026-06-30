@@ -247,7 +247,7 @@ async def start_command(client: Bot, message: Message):
             print(f"[Amon] Deep-link decode error: {e}")
 
     # ── No deep-link payload — show welcome screen ─────────────────────────────
-        else:
+    else:
         inline_buttons = main_menu_buttons()
 
         wait_msg = await message.reply_text("⏳")
